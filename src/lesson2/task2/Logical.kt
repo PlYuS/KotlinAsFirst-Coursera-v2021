@@ -18,7 +18,14 @@ fun pointInsideCircle(x: Double, y: Double, x0: Double, y0: Double, r: Double) =
  * Четырехзначное число назовем счастливым, если сумма первых двух ее цифр равна сумме двух последних.
  * Определить, счастливое ли заданное число, вернуть true, если это так.
  */
-fun isNumberHappy(number: Int): Boolean = TODO()
+fun isNumberHappy(number: Int): Boolean {
+    val digit1 = number / 1000
+    val digit2 = (number / 100) % 10
+    val digit3 = (number / 10) % 10
+    val digit4 = number % 10
+
+    return digit1 + digit2 == digit3 + digit4
+}
 
 /**
  * Простая (2 балла)
@@ -27,7 +34,8 @@ fun isNumberHappy(number: Int): Boolean = TODO()
  * Определить, угрожают ли они друг другу. Вернуть true, если угрожают.
  * Считать, что ферзи не могут загораживать друг друга.
  */
-fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean = TODO()
+fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean =
+    x1 == x2 || y1 == y2 || x1 - x2 == y1 - y2 || x1 - x2 == y2 - y1
 
 
 /**
@@ -36,7 +44,30 @@ fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean = TODO()
  * Дан номер месяца (от 1 до 12 включительно) и год (положительный).
  * Вернуть число дней в этом месяце этого года по григорианскому календарю.
  */
-fun daysInMonth(month: Int, year: Int): Int = TODO()
+fun daysInMonth(month: Int, year: Int): Int {
+    return when (month) {
+        1 -> 31
+        2 -> {
+            return when {
+                year % 400 == 0 -> 29
+                year % 100 == 0 -> 28
+                year % 4 == 0 -> 29
+                else -> 28
+            }
+        }
+        3 -> 31
+        4 -> 30
+        5 -> 31
+        6 -> 30
+        7 -> 31
+        8 -> 31
+        9 -> 30
+        10 -> 31
+        11 -> 30
+        12 -> 31
+        else -> 0
+    }
+}
 
 /**
  * Простая (2 балла)
@@ -48,7 +79,9 @@ fun daysInMonth(month: Int, year: Int): Int = TODO()
 fun circleInside(
     x1: Double, y1: Double, r1: Double,
     x2: Double, y2: Double, r2: Double
-): Boolean = TODO()
+): Boolean =
+    pointInsideCircle(x1 - r1, y1, x2, y2, r2) && pointInsideCircle(x1 + r1, y1, x2, y2, r2) &&
+            pointInsideCircle(x1, y1 - r1, x2, y2, r2) && pointInsideCircle(x1, y1 + r1, x2, y2, r2)
 
 /**
  * Средняя (3 балла)
@@ -59,4 +92,11 @@ fun circleInside(
  * кирпич 4 х 4 х 4 пройдёт через отверстие 4 х 4.
  * Вернуть true, если кирпич пройдёт
  */
-fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean = TODO()
+fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean {
+    if ((a <= r) && (b <= s || c <= s)) return true
+    if ((a <= s) && (b <= r || c <= r)) return true
+    if ((b <= r) && (c <= s)) return true
+    if ((b <= s) && (c <= r)) return true
+
+    return false
+}

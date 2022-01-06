@@ -3,7 +3,9 @@
 package lesson2.task1
 
 import lesson1.task1.discriminant
+import lesson1.task1.sqr
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sqrt
 
 // Урок 2: ветвления (здесь), логический тип (см. 2.2).
@@ -68,7 +70,17 @@ fun minBiRoot(a: Double, b: Double, c: Double): Double {
  * Мой возраст. Для заданного 0 < n < 200, рассматриваемого как возраст человека,
  * вернуть строку вида: «21 год», «32 года», «12 лет».
  */
-fun ageDescription(age: Int): String = TODO()
+fun ageDescription(age: Int): String {
+    if ((age % 100) in 11..14) return "$age лет"
+
+    return when (age % 10) {
+        0 -> "$age лет"
+        1 -> "$age год"
+        in 2..4 -> "$age года"
+        in 5..9 -> "$age лет"
+        else -> "$age лет"
+    }
+}
 
 /**
  * Простая (2 балла)
@@ -81,7 +93,26 @@ fun timeForHalfWay(
     t1: Double, v1: Double,
     t2: Double, v2: Double,
     t3: Double, v3: Double
-): Double = TODO()
+): Double {
+    val firstPartLength = t1 * v1
+    val secondPartLength = t2 * v2
+    val thirdPartLength = t3 * v3
+    val halfWayLength = (firstPartLength + secondPartLength + thirdPartLength) / 2.0
+
+    var result = 0.0
+    if (halfWayLength <= firstPartLength) result += halfWayLength / v1
+    else {
+        result += t1
+        val remainingLength = halfWayLength - firstPartLength
+        if (remainingLength <= secondPartLength) result += remainingLength / v2
+        else {
+            result += t2
+            result += (remainingLength - secondPartLength) / v3
+        }
+    }
+
+    return result
+}
 
 /**
  * Простая (2 балла)
@@ -96,7 +127,15 @@ fun whichRookThreatens(
     kingX: Int, kingY: Int,
     rookX1: Int, rookY1: Int,
     rookX2: Int, rookY2: Int
-): Int = TODO()
+): Int {
+    return when {
+        rookX1 == kingX && rookY2 == kingY -> 3
+        rookX2 == kingX && rookY1 == kingY -> 3
+        rookX2 == kingX || rookY2 == kingY -> 2
+        rookX1 == kingX || rookY1 == kingY -> 1
+        else -> 0
+    }
+}
 
 /**
  * Простая (2 балла)
@@ -112,7 +151,15 @@ fun rookOrBishopThreatens(
     kingX: Int, kingY: Int,
     rookX: Int, rookY: Int,
     bishopX: Int, bishopY: Int
-): Int = TODO()
+): Int {
+    return when {
+        (rookX == kingX || rookY == kingY) &&
+                (bishopX - kingX == bishopY - kingY || bishopX - kingX == kingY - bishopY) -> 3
+        bishopX - kingX == bishopY - kingY || bishopX - kingX == kingY - bishopY -> 2
+        rookX == kingX || rookY == kingY -> 1
+        else -> 0
+    }
+}
 
 /**
  * Простая (2 балла)
@@ -122,7 +169,39 @@ fun rookOrBishopThreatens(
  * прямоугольным (вернуть 1) или тупоугольным (вернуть 2).
  * Если такой треугольник не существует, вернуть -1.
  */
-fun triangleKind(a: Double, b: Double, c: Double): Int = TODO()
+fun triangleKind(a: Double, b: Double, c: Double): Int {
+    var maxSide = 0.0
+    var smallerSideA = 0.0
+    var smallerSideB = 0.0
+
+    when (max(a, b)) {
+        a -> {
+            maxSide = a
+            smallerSideA = b
+        }
+        b -> {
+            maxSide = b
+            smallerSideA = a
+        }
+    }
+    when (max(maxSide, c)) {
+        maxSide -> smallerSideB = c
+        c -> {
+            maxSide = c
+            smallerSideA = a
+            smallerSideB = b
+        }
+    }
+
+    if (maxSide >= smallerSideA + smallerSideB) return -1
+
+    return when {
+        sqr(maxSide) == sqr(smallerSideA) + sqr(smallerSideB) -> 1
+        sqr(maxSide) < sqr(smallerSideA) + sqr(smallerSideB) -> 0
+        sqr(maxSide) > sqr(smallerSideA) + sqr(smallerSideB) -> 2
+        else -> -1
+    }
+}
 
 /**
  * Средняя (3 балла)
@@ -132,4 +211,11 @@ fun triangleKind(a: Double, b: Double, c: Double): Int = TODO()
  * Найти длину пересечения отрезков AB и CD.
  * Если пересечения нет, вернуть -1.
  */
-fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int = TODO()
+fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int {
+    if ((d < a) || (b < c)) return -1
+
+    val leftPoint = max(a, c)
+    val rightPoint = min(b, d)
+
+    return rightPoint - leftPoint
+}
