@@ -190,7 +190,7 @@ fun lcm(m: Int, n: Int): Int {
  * Например, 25 и 49 взаимно простые, а 6 и 8 -- нет.
  */
 fun isCoPrime(m: Int, n: Int): Boolean {
-    if (m == 1 && n == 1) return true
+    if (m == 1 || n == 1) return true
     if (m % 2 == 0 && n % 2 == 0) return false
 
     val minNumber = min(m, n)
@@ -248,16 +248,6 @@ fun revert(n: Int): Int {
  * Использовать операции со строками в этой задаче запрещается.
  */
 fun isPalindrome(n: Int): Boolean {
-//    return when (val digitNumber = digitNumber(n)) {
-//        1 -> true
-//        else -> {
-//            val firstDigit = n / power(10, digitNumber - 1)
-//            val lastDigit = n % 10
-//            if (firstDigit == lastDigit) isPalindrome((n % power(10, digitNumber - 1)) / 10)
-//            else false
-//        }
-//    }
-
     var number = abs(n)
     if (number < 10) return true
 
