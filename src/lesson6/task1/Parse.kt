@@ -2,6 +2,12 @@
 
 package lesson6.task1
 
+import lesson2.task2.daysInMonth
+import java.lang.Exception
+import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
+import java.lang.NumberFormatException
+
 // Урок 6: разбор строк, исключения
 // Максимальное количество баллов = 13
 // Рекомендуемое количество баллов = 11
@@ -62,6 +68,41 @@ fun main() {
     }
 }
 
+fun monthStrToNumber(str: String): Int {
+    return when (str) {
+        "января" -> 1
+        "февраля" -> 2
+        "марта" -> 3
+        "апреля" -> 4
+        "мая" -> 5
+        "июня" -> 6
+        "июля" -> 7
+        "августа" -> 8
+        "сентября" -> 9
+        "октября" -> 10
+        "ноября" -> 11
+        "декабря" -> 12
+        else -> throw NumberFormatException()
+    }
+}
+
+fun monthNumberToString(number: Int): String {
+    return when (number) {
+        1 -> "января"
+        2 -> "февраля"
+        3 -> "марта"
+        4 -> "апреля"
+        5 -> "мая"
+        6 -> "июня"
+        7 -> "июля"
+        8 -> "августа"
+        9 -> "сентября"
+        10 -> "октября"
+        11 -> "ноября"
+        12 -> "декабря"
+        else -> throw NumberFormatException()
+    }
+}
 
 /**
  * Средняя (4 балла)
@@ -74,7 +115,27 @@ fun main() {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
-fun dateStrToDigit(str: String): String = TODO()
+fun dateStrToDigit(str: String): String {
+    val parts = str.split(" ")
+    if (parts.size != 3) return ""
+
+    val day: Int
+    val month: Int
+    val year: Int
+    try {
+        day = parts[0].toInt()
+        month = monthStrToNumber(parts[1])
+        year = parts[2].toInt()
+    } catch (e: Exception) {
+        return ""
+    }
+
+    if (year < 0) return ""
+    if (month < 1 || month > 12) return ""
+    if (day < 1 || day > daysInMonth(month, year)) return ""
+
+    return String.format("%02d.%02d.%d", day, month, year)
+}
 
 /**
  * Средняя (4 балла)
@@ -86,7 +147,28 @@ fun dateStrToDigit(str: String): String = TODO()
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30 февраля 2009) считается неверными
  * входными данными.
  */
-fun dateDigitToStr(digital: String): String = TODO()
+fun dateDigitToStr(digital: String): String {
+    val parts = digital.split(".")
+    if (parts.size != 3) return ""
+
+    val day: Int
+    val month: Int
+    val monthStr: String
+    val year: Int
+    try {
+        day = parts[0].toInt()
+        month = parts[1].toInt()
+        monthStr = monthNumberToString(month)
+        year = parts[2].toInt()
+    } catch (e: Exception) {
+        return ""
+    }
+
+    if (year < 0) return ""
+    if (day < 1 || day > daysInMonth(month, year)) return ""
+
+    return "$day $monthStr $year"
+}
 
 /**
  * Средняя (4 балла)
@@ -102,7 +184,37 @@ fun dateDigitToStr(digital: String): String = TODO()
  *
  * PS: Дополнительные примеры работы функции можно посмотреть в соответствующих тестах.
  */
-fun flattenPhoneNumber(phone: String): String = TODO()
+fun flattenPhoneNumber(phone: String): String {
+    var result = ""
+    if (phone.contains("()")) return ""
+
+    var hasOpenBracket = false
+    var hasCloseBracket = false
+    for (i in phone.indices) {
+        when (phone[i]) {
+            '+' -> {
+                if (i > 0) return ""
+                result += '+'
+            }
+            '-', ' ' -> continue
+            '(' -> {
+                if (hasOpenBracket) return ""
+                hasOpenBracket = true
+            }
+            ')' -> {
+                if (!hasOpenBracket) return ""
+                if (hasCloseBracket) return ""
+                hasCloseBracket = true
+            }
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> result += phone[i]
+            else -> return ""
+        }
+    }
+
+    if (hasOpenBracket && !hasCloseBracket) return ""
+
+    return result
+}
 
 /**
  * Средняя (5 баллов)
@@ -114,7 +226,21 @@ fun flattenPhoneNumber(phone: String): String = TODO()
  * Прочитать строку и вернуть максимальное присутствующее в ней число (717 в примере).
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
-fun bestLongJump(jumps: String): Int = TODO()
+fun bestLongJump(jumps: String): Int {
+    val parts = jumps.split(" ")
+    val jumpNumbers = mutableListOf<Int>()
+
+    for (jump in parts) {
+        try {
+            val jumpNumber = jump.toInt()
+            jumpNumbers.add(jumpNumber)
+        } catch (e: Exception) {
+            if (jump != "-" && jump != "%") return -1
+        }
+    }
+
+    return jumpNumbers.maxOrNull() ?: -1
+}
 
 /**
  * Сложная (6 баллов)
@@ -127,7 +253,28 @@ fun bestLongJump(jumps: String): Int = TODO()
  * При нарушении формата входной строки, а также в случае отсутствия удачных попыток,
  * вернуть -1.
  */
-fun bestHighJump(jumps: String): Int = TODO()
+fun bestHighJump(jumps: String): Int {
+    val parts = jumps.split(" ")
+    var result = -1
+    var lastHeight = 0
+
+    for (i in parts.indices) {
+        if (i % 2 == 0) {
+            try {
+                lastHeight = parts[i].toInt()
+            } catch (e: Exception) {
+                return -1
+            }
+        } else {
+            for (char in parts[i]) {
+                if (char != '+' && char != '%' && char != '-') return -1
+            }
+            if (parts[i].last() == '+' && lastHeight > result) result = lastHeight
+        }
+    }
+
+    return result
+}
 
 /**
  * Сложная (6 баллов)
@@ -138,7 +285,31 @@ fun bestHighJump(jumps: String): Int = TODO()
  * Вернуть значение выражения (6 для примера).
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
-fun plusMinus(expression: String): Int = TODO()
+fun plusMinus(expression: String): Int {
+    val parts = expression.split(" ")
+    var result = 0
+    var lastMark = "+"
+
+    for (i in parts.indices) {
+        if (parts[i].isEmpty()) throw IllegalArgumentException()
+
+        if (i % 2 == 0) {
+            if (!parts[i].first().isDigit()) throw IllegalArgumentException()
+            try {
+                val number = parts[i].toInt()
+                if (lastMark == "+") result += number
+                else result -= number
+            } catch (e: Exception) {
+                throw IllegalArgumentException()
+            }
+        } else {
+            if (parts[i] == "+" || parts[i] == "-") lastMark = parts[i]
+            else throw IllegalArgumentException()
+        }
+    }
+
+    return result
+}
 
 /**
  * Сложная (6 баллов)
@@ -149,7 +320,19 @@ fun plusMinus(expression: String): Int = TODO()
  * Вернуть индекс начала первого повторяющегося слова, или -1, если повторов нет.
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
-fun firstDuplicateIndex(str: String): Int = TODO()
+fun firstDuplicateIndex(str: String): Int {
+    val parts = str.split(" ")
+    var index = -1
+    var prevWord = ""
+
+    for (word in parts) {
+        if (word.lowercase() == prevWord.lowercase()) return index
+        index += prevWord.length + 1
+        prevWord = word
+    }
+
+    return -1
+}
 
 /**
  * Сложная (6 баллов)
@@ -162,7 +345,43 @@ fun firstDuplicateIndex(str: String): Int = TODO()
  * или пустую строку при нарушении формата строки.
  * Все цены должны быть больше нуля либо равны нулю.
  */
-fun mostExpensive(description: String): String = TODO()
+fun mostExpensive(description: String): String {
+    var result: Pair<String, Double> = Pair("", 0.0)
+    val products = description.split("; ")
+
+    for (product in products) {
+        val parts = product.split(" ")
+        if (parts.size != 2) return ""
+        try {
+            val cost = parts[1].toDouble()
+            if (cost < 0) return ""
+            if (cost >= result.second) result = Pair(parts[0], cost)
+        } catch (e: Exception) {
+            return ""
+        }
+    }
+
+    return result.first
+}
+
+fun romanStrToInt(str: String): Int? {
+    return when (str) {
+        "I" -> 1
+        "IV" -> 4
+        "V" -> 5
+        "IX" -> 9
+        "X" -> 10
+        "XL" -> 40
+        "L" -> 50
+        "XC" -> 90
+        "C" -> 100
+        "CD" -> 400
+        "D" -> 500
+        "CM" -> 900
+        "M" -> 1000
+        else -> null
+    }
+}
 
 /**
  * Сложная (6 баллов)
@@ -175,7 +394,31 @@ fun mostExpensive(description: String): String = TODO()
  *
  * Вернуть -1, если roman не является корректным римским числом
  */
-fun fromRoman(roman: String): Int = TODO()
+fun fromRoman(roman: String): Int {
+    var result = 0
+    var it = 0
+
+    while (it < roman.length) {
+        val oneSymbol: String = roman[it].toString()
+        if (it + 1 < roman.length) {
+            val twoSymbols: String = roman[it].toString() + roman[it + 1].toString()
+            if (romanStrToInt(twoSymbols) == null) {
+                if (romanStrToInt(oneSymbol) == null) return -1
+                result += romanStrToInt(oneSymbol) ?: 0
+                it += 1
+            } else {
+                result += romanStrToInt(twoSymbols) ?: 0
+                it += 2
+            }
+        } else {
+            if (romanStrToInt(oneSymbol) == null) return -1
+            result += romanStrToInt(oneSymbol) ?: 0
+            it += 1
+        }
+    }
+
+    return result
+}
 
 /**
  * Очень сложная (7 баллов)
@@ -213,4 +456,65 @@ fun fromRoman(roman: String): Int = TODO()
  * IllegalArgumentException должен бросаться даже если ошибочная команда не была достигнута в ходе выполнения.
  *
  */
-fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> = TODO()
+fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
+    var openBracketCount = 0
+    var closeBracketCount = 0
+    for (command in commands) {
+        when (command) {
+            '<', '>', '+', '-', ' ' -> continue
+            '[' -> openBracketCount += 1
+            ']' -> {
+                if (openBracketCount <= closeBracketCount) throw IllegalArgumentException()
+                closeBracketCount += 1
+            }
+            else -> throw IllegalArgumentException()
+        }
+    }
+    if (openBracketCount != closeBracketCount) throw IllegalArgumentException()
+
+    val result = Array(cells) { 0 }
+    var index = cells / 2
+    var commandIt = 0
+    var commandCount = 0
+    while (commandIt < commands.length && commandCount < limit) {
+        openBracketCount = 0
+        closeBracketCount = 0
+        when (commands[commandIt]) {
+            '>' -> {
+                if (index + 1 >= cells) throw IllegalStateException()
+                index += 1
+            }
+            '<' -> {
+                if (index - 1 < 0) throw IllegalStateException()
+                index -= 1
+            }
+            '+' -> result[index] += 1
+            '-' -> result[index] -= 1
+            '[' -> if (result[index] == 0) {
+                openBracketCount += 1
+                do {
+                    commandIt += 1
+                    when (commands[commandIt]) {
+                        '[' -> openBracketCount += 1
+                        ']' -> closeBracketCount += 1
+                    }
+                } while (openBracketCount != closeBracketCount)
+            }
+            ']' -> if (result[index] != 0) {
+                closeBracketCount += 1
+                do {
+                    commandIt -= 1
+                    when (commands[commandIt]) {
+                        '[' -> openBracketCount += 1
+                        ']' -> closeBracketCount += 1
+                    }
+                } while (openBracketCount != closeBracketCount)
+            }
+        }
+
+        commandIt += 1
+        commandCount += 1
+    }
+
+    return result.toList()
+}
